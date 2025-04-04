@@ -1,4 +1,4 @@
-name: "Purge Camo Cache"
+name: "Purge Cache Camo"
 author: "Angrido"
 description: "Clears cached badge images in the README by purging camo.githubusercontent.com."
 branding:
