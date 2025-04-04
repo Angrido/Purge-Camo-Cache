@@ -13,7 +13,7 @@ runs:
       id: branch-name
       uses: tj-actions/branch-names@v8.1.0
 
-    - name: Purge Cached Badges
+    - name: Purge Cached Camo
       shell: bash
       run: |
         urls=$(curl -sLk https://github.com/${{github.repository_owner}}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
