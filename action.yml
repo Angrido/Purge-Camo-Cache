@@ -1,0 +1,21 @@
+name: "Purge Camo Cache"
+author: "Angrido"
+description: "Clears cached badge images in the README by purging camo.githubusercontent.com."
+branding:
+  icon: "refresh-cw"
+  color: "green"
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Get Current Branch
+      id: branch-name
+      uses: tj-actions/branch-names@v8.1.0
+
+    - name: Purge Cached Badges
+      shell: bash
+      run: |
+        urls=$(curl -sLk https://github.com/${{github.repository_owner}}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
+
+        while IFS= read -r line; do curl -X PURGE "$line" ; done <<< "$urls"
