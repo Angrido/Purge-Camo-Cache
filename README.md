@@ -19,6 +19,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 */2 * * *'
 
 jobs:
   purge-badges-cache:
@@ -26,7 +28,7 @@ jobs:
     
     steps:
       - name: Purge badges cache
-        uses: Angrido/Purge-Camo-Cache@v1.0.0
+        uses: Angrido/Purge-Camo-Cache@v1.1.0
         with:
           repository: 'Angrido/Angrido' #Change me
           branch: 'main' #Change me if different
