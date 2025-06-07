@@ -13,9 +13,15 @@ runs:
       id: branch-name
       uses: tj-actions/branch-names@v8.2.1
 
-    - name: Purge Cached Camo
+    - name: Purge Cached Camo Images from README
       shell: bash
       run: |
-        urls=$(curl -sLk https://github.com/${{github.repository_owner}}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
+        raw_url="https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ steps.branch-name.outputs.current_branch }}/README.md"
+        urls=$(curl -s "$raw_url" | grep -Eo "https://camo.githubusercontent.com/[a-zA-Z0-9./?=_%-]*")
 
-        while IFS= read -r line; do curl -X PURGE "$line" ; done <<< "$urls"
+        echo "Found $(echo \"$urls\" | wc -l) camo URLs."
+
+        while IFS= read -r url; do
+          echo "Fetching: $url"
+          curl -s -H 'Cache-Control: no-cache' "$url" > /dev/null || echo "Failed: $url"
+        done <<< "$urls"
