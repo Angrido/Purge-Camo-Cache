@@ -5,31 +5,19 @@ branding:
   icon: "refresh-cw"
   color: "green"
 
-inputs:
-  repository:
-    description: "GitHub repository (owner/repo)"
-    required: false
-    default: ${{ github.repository }}
-  branch:
-    description: "Branch name"
-    required: false
-    default: ${{ github.ref_name }}
-
 runs:
   using: "composite"
   steps:
 
-    - name: Purge Cached Camo Images from README
+    - name: Get Current Branch
+      id: branch-name
+      uses: tj-actions/branch-names@v8.2.1
+
+    - name: Purge Cached Camo
       shell: bash
       run: |
-        raw_url="https://raw.githubusercontent.com/${{ inputs.repository }}/${{ inputs.branch }}/README.md"
-        echo "Fetching README from: $raw_url"
-        urls=$(curl -s "$raw_url" | grep -Eo "https://camo.githubusercontent.com/[a-zA-Z0-9./?=_%-]*")
+        urls=$(curl -sLk https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
 
-        count=$(echo "$urls" | grep -c .)
-        echo "Found $count camo URLs."
-
-        while IFS= read -r url; do
-          echo "Fetching: $url"
-          curl -s -H 'Cache-Control: no-cache' "$url" > /dev/null || echo "Failed: $url"
+        while IFS= read -r line; do
+          curl -X PURGE "$line"
         done <<< "$urls"
