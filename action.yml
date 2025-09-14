@@ -5,6 +5,12 @@ branding:
   icon: "refresh-cw"
   color: "green"
 
+inputs:
+  token:
+    description: 'GitHub token for private repositories. Defaults to the token of the repo this action is running in.'
+    required: false
+    default: '${{ github.token }}'
+
 runs:
   using: "composite"
   steps:
@@ -16,7 +22,7 @@ runs:
     - name: Purge Cached Camo
       shell: bash
       run: |
-        urls=$(curl -sLk https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
+        urls=$(curl -sLkH "Authorization: token ${{ inputs.token }}" https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
 
         while IFS= read -r line; do
           curl -X PURGE "$line"
