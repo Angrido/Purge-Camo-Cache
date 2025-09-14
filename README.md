@@ -28,7 +28,7 @@ jobs:
     
     steps:
       - name: Purge badges cache
-        uses: Angrido/Purge-Camo-Cache@v1.1.1
+        uses: Angrido/Purge-Camo-Cache@v1.2.0
         with:
           repository: 'Angrido/Angrido' #Change me
           branch: 'main' #Change me if different
