@@ -17,7 +17,7 @@ runs:
 
     - name: Get Current Branch
       id: branch-name
-      uses: tj-actions/branch-names@v8.2.1
+      uses: tj-actions/branch-names@v9.0.2
 
     - name: Purge Cached Camo
       shell: bash
