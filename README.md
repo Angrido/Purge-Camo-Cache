@@ -1,16 +1,12 @@
-# 🚀 Purge Camo Cache
+# Purge Camo Cache
 
-## 🌟 Overview
+## Overview
 
-Purge Camo Cache is a GitHub Action that purges all cached images served via camo.githubusercontent.com for a given branch of your repository. This ensures that outdated images are refreshed and properly displayed. 🔄
+A GitHub Action that purges cached images served via `camo.githubusercontent.com` for your repository. GitHub uses Camo as a caching proxy to serve images securely, but it does not refresh them automatically. This action clears the cache so updated images are displayed immediately.
 
-## ❓ Why Use This Action?
+## Usage
 
-GitHub uses Camo, a caching proxy, to serve images securely. However, Camo does not refresh images automatically. This action helps clear the cached images so that updates are reflected immediately. ⚡
-
-## 🛠️ Usage
-
-To use this GitHub Action, add the following workflow to your repository:
+Add the following workflow to your repository:
 
 ```yaml
 name: Purge Camo Cache
@@ -23,19 +19,31 @@ on:
     - cron: '0 */2 * * *'
 
 jobs:
-  purge-badges-cache:
+  purge-camo-cache:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Purge badges cache
+      - name: Purge Camo Cache
         uses: Angrido/Purge-Camo-Cache@v1.2.0
-        with:
-          repository: 'Angrido/Angrido' #Change me
-          branch: 'main' #Change me if different
 ```
 
-## 🔍 How It Works
+For private repositories, pass a token with read access:
 
-1. 🔄 Detects the current branch using `tj-actions/branch-names`.
-2. 🖼️ Extracts all cached image URLs from `camo.githubusercontent.com`.
-3. 🚀 Sends a `PURGE` request to refresh those images.
+```yaml
+      - name: Purge Camo Cache
+        uses: Angrido/Purge-Camo-Cache@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## Inputs
+
+| Name    | Required | Default              | Description                                |
+|---------|----------|----------------------|--------------------------------------------|
+| `token` | No       | `${{ github.token }}` | GitHub token for authentication.          |
+
+## How It Works
+
+1. Detects the current branch using `tj-actions/branch-names`.
+2. Fetches the repository page and extracts all `camo.githubusercontent.com` image URLs.
+3. Sends a `PURGE` request to each URL to invalidate the cache.

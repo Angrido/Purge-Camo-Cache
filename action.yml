@@ -1,15 +1,15 @@
-name: "Purge Cache Camo"
+name: "Purge Camo Cache"
 author: "Angrido"
-description: "Clears cached badge images in the README by purging camo.githubusercontent.com."
+description: "Purges cached images served via camo.githubusercontent.com so updated images are displayed immediately."
 branding:
   icon: "refresh-cw"
   color: "green"
 
 inputs:
   token:
-    description: 'GitHub token for private repositories. Defaults to the token of the repo this action is running in.'
+    description: "GitHub token for authentication. Defaults to the built-in repository token."
     required: false
-    default: '${{ github.token }}'
+    default: "${{ github.token }}"
 
 runs:
   using: "composite"
@@ -22,8 +22,35 @@ runs:
     - name: Purge Cached Camo
       shell: bash
       run: |
-        urls=$(curl -sLkH "Authorization: token ${{ inputs.token }}" https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/tree/${{ steps.branch-name.outputs.current_branch }} | grep -Eo "(http|https)://camo.githubusercontent.com[a-zA-Z0-9./?=_%:-]*")
+        BRANCH="${{ steps.branch-name.outputs.current_branch }}"
+        REPO="${{ github.repository }}"
+        TOKEN="${{ inputs.token }}"
 
-        while IFS= read -r line; do
-          curl -X PURGE "$line"
-        done <<< "$urls"
+        PAGE=$(curl -sSLf -H "Authorization: token ${TOKEN}" \
+          "https://github.com/${REPO}/tree/${BRANCH}") || {
+          echo "::error::Failed to fetch repository page for ${REPO} on branch ${BRANCH}"
+          exit 1
+        }
+
+        URLS=$(echo "${PAGE}" | grep -Eo 'https://camo\.githubusercontent\.com[a-zA-Z0-9./?=_%:&+~#-]*' || true)
+
+        if [ -z "${URLS}" ]; then
+          echo "No camo URLs found. Nothing to purge."
+          exit 0
+        fi
+
+        FAIL=0
+        while IFS= read -r url; do
+          [ -z "${url}" ] && continue
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X PURGE "${url}")
+          if [ "${HTTP_CODE}" -ge 200 ] && [ "${HTTP_CODE}" -lt 400 ]; then
+            echo "Purged: ${url} (${HTTP_CODE})"
+          else
+            echo "::warning::Failed to purge: ${url} (${HTTP_CODE})"
+            FAIL=1
+          fi
+        done <<< "${URLS}"
+
+        if [ "${FAIL}" -eq 1 ]; then
+          echo "::warning::Some URLs failed to purge."
+        fi
