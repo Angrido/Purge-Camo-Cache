@@ -36,14 +36,14 @@ jobs:
 
     steps:
       - name: Purge Camo Cache
-        uses: Angrido/Purge-Camo-Cache@v1.2.0
+        uses: Angrido/Purge-Camo-Cache@v1.3.0
 ```
 
 🔒 For **private repositories**, pass a token with read access:
 
 ```yaml
       - name: Purge Camo Cache
-        uses: Angrido/Purge-Camo-Cache@v1.2.0
+        uses: Angrido/Purge-Camo-Cache@v1.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
