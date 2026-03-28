@@ -1,6 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/GitHub-Action-2088FF?logo=github-actions&logoColor=white" alt="GitHub Action" />
   <img src="https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white" alt="MIT License" />
+  <img src="https://img.shields.io/endpoint?url=https://Angrido.github.io/Purge-Camo-Cache/Purge-Camo-Cache.json" alt="Used by" />
 </p>
 
 <h1 align="center">🔄 Purge Camo Cache</h1>
